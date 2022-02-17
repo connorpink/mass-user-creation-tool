@@ -104,6 +104,19 @@ Write-Progress -Activity "Creating" -Status "Progress:" -PercentComplete 1
 foreach ($user in $users){
     $i = $i+1
     Write-Host ("Creating User with credentials :"+$user)
+    # handle any last names that contain a hyphon by taking the first letter
+    # of the first hyphonated section and the second hyphonated section concatinated
+    # together as the last name
+    # ~~
+    # lastname: 'test-joe' would be come 'tjoe'
+    if ($user.lastname.Contains('-')){
+        $nameArray = $user.lastname.split("-")
+        for ($x=0; $x -lt $nameArray.count-1;$x++){
+            $newLastName += $nameArray[$x].Substring(0,1)    
+        }
+        $newLastName += $nameArray[$nameArray.count-1]
+        $user.lastname = $newLastName
+    }
     if ((Test-ADUser($user.username)) -eq $true) {
         #user with that username already exists
         $e = 1
